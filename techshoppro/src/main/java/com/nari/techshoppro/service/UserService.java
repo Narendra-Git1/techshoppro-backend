@@ -2,13 +2,12 @@ package com.nari.techshoppro.service;
 
 import java.util.List;
 
-import com.nari.techshoppro.entity.User;
+import com.nari.techshoppro.dto.UserRequestDto;
+import com.nari.techshoppro.dto.UserResponseDto;
 
 public interface UserService {
 
-    // Save User
-    User saveUser(User user);
+    UserResponseDto saveUser(UserRequestDto dto);
 
-    // Get All Users
-    List<User> getAllUsers();
+    List<UserResponseDto> getAllUsers();
 }

@@ -1,33 +1,33 @@
 package com.nari.techshoppro.controller;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import com.nari.techshoppro.entity.User;
+import com.nari.techshoppro.dto.UserRequestDto;
+import com.nari.techshoppro.dto.UserResponseDto;
 import com.nari.techshoppro.service.UserService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/users")
+@Validated
 public class UserController {
 
     @Autowired
     private UserService userService;
 
-    // Save User
     @PostMapping
-    public User saveUser(@RequestBody User user) {
+    public UserResponseDto saveUser(@Valid @RequestBody UserRequestDto dto) {
 
-        user.setCreatedAt(LocalDateTime.now());
-
-        return userService.saveUser(user);
+        return userService.saveUser(dto);
     }
 
-    // Get All Users
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<UserResponseDto> getAllUsers() {
 
         return userService.getAllUsers();
     }
