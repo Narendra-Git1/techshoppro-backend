@@ -39,4 +39,33 @@ public class JwtUtil {
                 .signWith(getSignKey())
                 .compact();
     }
+    
+ // Extract email from token
+    public String extractEmail(String token) {
+
+        return Jwts.parser()
+                .verifyWith(getSignKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
+    }
+
+    // Validate token
+    public boolean validateToken(String token) {
+
+        try {
+
+            Jwts.parser()
+                    .verifyWith(getSignKey())
+                    .build()
+                    .parseSignedClaims(token);
+
+            return true;
+
+        } catch (Exception e) {
+
+            return false;
+        }
+    }
 }
