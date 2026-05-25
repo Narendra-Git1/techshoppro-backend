@@ -1,6 +1,9 @@
 package com.nari.techshoppro.service.impl;
 
 import java.time.LocalDateTime;
+import com.nari.techshoppro.dto.AuthResponseDto;
+import com.nari.techshoppro.dto.LoginRequestDto;
+import com.nari.techshoppro.security.JwtUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +22,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Override
     public String register(RegisterRequestDto dto) {
@@ -49,5 +54,34 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
 
         return "User Registered Successfully";
+    }
+    
+    @Override
+    public AuthResponseDto login(LoginRequestDto dto) {
+
+        User user = userRepository.findByEmail(dto.getEmail())
+                .orElseThrow(() ->
+                        new RuntimeException("Invalid Email or Password"));
+
+        // Verify password
+        boolean isPasswordValid =
+                passwordEncoder.matches(
+                        dto.getPassword(),
+                        user.getPassword()
+                );
+
+        if (!isPasswordValid) {
+
+            throw new RuntimeException("Invalid Email or Password");
+        }
+
+        // Generate JWT Token
+        String token =
+                jwtUtil.generateToken(user.getEmail());
+
+        return new AuthResponseDto(
+                token,
+                "Login Successful"
+        );
     }
 }
