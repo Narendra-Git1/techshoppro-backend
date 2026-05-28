@@ -1,3 +1,4 @@
+
 package com.nari.techshoppro.service;
 
 import java.util.List;
@@ -12,8 +13,11 @@ public interface CategoryService {
 
     Category getCategoryById(Long id);
 
-    Category updateCategory(Long id,
-                            Category category);
+    Category updateCategory(
+            Long id,
+            Category category
+    );
 
     void deleteCategory(Long id);
 }
+

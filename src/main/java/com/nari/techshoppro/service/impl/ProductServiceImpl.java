@@ -1,3 +1,4 @@
+
 package com.nari.techshoppro.service.impl;
 
 import java.util.List;
@@ -6,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.nari.techshoppro.entity.Product;
+import com.nari.techshoppro.exception.ResourceNotFoundException;
 import com.nari.techshoppro.repository.ProductRepository;
 import com.nari.techshoppro.service.ProductService;
 
@@ -32,7 +34,12 @@ public class ProductServiceImpl
     public Product getProductById(Long id) {
 
         return productRepository.findById(id)
-                .orElseThrow();
+
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Product Not Found with ID: " + id
+                        )
+                );
     }
 
     @Override
@@ -41,13 +48,22 @@ public class ProductServiceImpl
             Product product) {
 
         Product existingProduct =
+
                 productRepository.findById(id)
-                        .orElseThrow();
+
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Product Not Found with ID: " + id
+                                )
+                        );
 
         existingProduct.setName(product.getName());
         existingProduct.setDescription(product.getDescription());
         existingProduct.setPrice(product.getPrice());
         existingProduct.setStock(product.getStock());
+        existingProduct.setBrand(product.getBrand());
+        existingProduct.setImageUrl(product.getImageUrl());
+        existingProduct.setCategory(product.getCategory());
 
         return productRepository.save(existingProduct);
     }
@@ -55,6 +71,17 @@ public class ProductServiceImpl
     @Override
     public void deleteProduct(Long id) {
 
-        productRepository.deleteById(id);
+        Product product =
+
+                productRepository.findById(id)
+
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Product Not Found with ID: " + id
+                                )
+                        );
+
+        productRepository.delete(product);
     }
 }
+

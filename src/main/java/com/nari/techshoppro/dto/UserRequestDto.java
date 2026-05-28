@@ -2,7 +2,9 @@ package com.nari.techshoppro.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+
 import lombok.Data;
 
 @Data
@@ -18,7 +20,9 @@ public class UserRequestDto {
     @Size(min = 5, message = "Password must be at least 5 characters")
     private String password;
 
-
-    @NotBlank(message = "Phone is required")
+    @Pattern(
+            regexp = "^[0-9]{10}$",
+            message = "Phone number must be 10 digits"
+    )
     private String phone;
 }
