@@ -91,34 +91,30 @@ public class SecurityConfig {
                                 "/api/categories/**"
                         ).authenticated()
 
-                        // USER + ADMIN APIs
                         .requestMatchers(
                                 "/api/cart/**"
-                        ).authenticated()
+                        ).hasRole("USER")
 
                         .requestMatchers(
                                 "/api/orders/**"
-                        ).authenticated()
+                        ).hasRole("USER")
 
                         .requestMatchers(
                                 "/api/payments/**"
-                        ).authenticated()
+                        ).hasRole("USER")
 
                         .requestMatchers(
                                 "/api/address/**"
-                        ).authenticated()
+                        ).hasRole("USER")
 
                         .requestMatchers(
                                 "/api/wishlist/**"
-                        ).authenticated()
+                        ).hasRole("USER")
 
                         .requestMatchers(
                                 "/api/reviews/**"
-                        ).authenticated()
-
-                        .requestMatchers(
-                                "/api/users/**"
-                        ).authenticated()
+                        ).hasRole("USER")
+                        
 
                         // ALL OTHER APIs
                         .anyRequest().authenticated()
