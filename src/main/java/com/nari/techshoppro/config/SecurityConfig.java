@@ -97,11 +97,11 @@ public class SecurityConfig {
 
                         .requestMatchers(
                                 "/api/orders/**"
-                        ).hasRole("USER")
+                        ).authenticated()
 
                         .requestMatchers(
                                 "/api/payments/**"
-                        ).hasRole("USER")
+                        ).authenticated()
 
                         .requestMatchers(
                                 "/api/address/**"
