@@ -1,5 +1,7 @@
 package com.nari.techshoppro.config;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,73 +20,89 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.nari.techshoppro.security.JwtFilter;
 
-import java.util.List;
-
 @Configuration
 public class SecurityConfig {
 
     @Autowired
     private JwtFilter jwtFilter;
 
-    // ── CORS Configuration ────────────────────────────────────────────────────
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
 
-        // Allow React dev server — add your production URL here when deploying
+        CorsConfiguration config =
+                new CorsConfiguration();
+
         config.setAllowedOrigins(List.of(
-                "http://localhost:3000",
-                "http://127.0.0.1:3000"
+                "http://localhost:5173"
         ));
 
         config.setAllowedMethods(List.of(
-                "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE",
+                "OPTIONS"
         ));
 
-        // Allow Authorization header so JWT tokens pass through
         config.setAllowedHeaders(List.of("*"));
 
-        // Allow credentials (cookies/auth headers)
         config.setAllowCredentials(true);
 
-        // Cache preflight response for 1 hour (reduces OPTIONS requests)
-        config.setMaxAge(3600L);
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
+        source.registerCorsConfiguration(
+                "/**",
+                config
+        );
+
         return source;
     }
 
-    // ── Security Filter Chain ────────────────────────────────────────────────
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain securityFilterChain(
+            HttpSecurity http) throws Exception {
 
         http
-                // Attach CORS config — must come before csrf disable
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                .cors(cors -> cors.configurationSource(
+                        corsConfigurationSource()
+                ))
 
                 .csrf(csrf -> csrf.disable())
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // SWAGGER APIs
+                        // Swagger
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
 
-                        // PUBLIC APIs
+                        // Public APIs
                         .requestMatchers(
                                 "/api/auth/**"
                         ).permitAll()
 
-                        // ADMIN ONLY APIs
+                        // Products View
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/products/**"
+                        ).permitAll()
+
+                        // Categories View
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/categories/**"
+                        ).permitAll()
+
+                        // Admin APIs
                         .requestMatchers(
                                 "/api/admin/**"
                         ).hasRole("ADMIN")
 
-                        // PRODUCT ADMIN APIs
+                        // Product Management
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/api/products"
@@ -100,13 +118,7 @@ public class SecurityConfig {
                                 "/api/products/**"
                         ).hasRole("ADMIN")
 
-                        // PRODUCT VIEW APIs
-                        .requestMatchers(
-                                HttpMethod.GET,
-                                "/api/products/**"
-                        ).authenticated()
-
-                        // CATEGORY ADMIN APIs
+                        // Category Management
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/api/categories"
@@ -122,16 +134,24 @@ public class SecurityConfig {
                                 "/api/categories/**"
                         ).hasRole("ADMIN")
 
-                        // CATEGORY VIEW APIs
-                        .requestMatchers(
-                                HttpMethod.GET,
-                                "/api/categories/**"
-                        ).authenticated()
-
+                        // User APIs
                         .requestMatchers(
                                 "/api/cart/**"
                         ).hasRole("USER")
 
+                        .requestMatchers(
+                                "/api/wishlist/**"
+                        ).hasRole("USER")
+
+                        .requestMatchers(
+                                "/api/address/**"
+                        ).hasRole("USER")
+
+                        .requestMatchers(
+                                "/api/reviews/**"
+                        ).hasRole("USER")
+
+                        // User + Admin
                         .requestMatchers(
                                 "/api/orders/**"
                         ).authenticated()
@@ -140,24 +160,14 @@ public class SecurityConfig {
                                 "/api/payments/**"
                         ).authenticated()
 
-                        .requestMatchers(
-                                "/api/address/**"
-                        ).hasRole("USER")
-
-                        .requestMatchers(
-                                "/api/wishlist/**"
-                        ).hasRole("USER")
-
-                        .requestMatchers(
-                                "/api/reviews/**"
-                        ).hasRole("USER")
-
-                        // ALL OTHER APIs
+                        // Others
                         .anyRequest().authenticated()
                 )
 
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(
+                                SessionCreationPolicy.STATELESS
+                        )
                 )
 
                 .addFilterBefore(
